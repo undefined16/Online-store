@@ -14,7 +14,7 @@ class Product:
         return f"ID: {self.productId}, Ім'я: {self.productName}, Ціна: ${self.productPrice}, Кількість: {self.productQuantity}"
 
 
-class Admin:
+class ProductManager:
     def __init__(self):
         # Ініціалізація пустого словника для зберігання продуктів.
         self.productList = {}
