@@ -1,7 +1,7 @@
 import productsManager
-import userManager
+import usersManager
 from productsManager import Product, ProductManager
-from userManager import User, UserManager
+from usersManager import User, UserManager
 
 class Admin:
     def __init__(self, productManager, userManager):
@@ -284,8 +284,8 @@ class Admin:
 
 # Ініціалізація класів для управління продуктами та користувачами
 productManager = ProductManager()
-userManager = UserManager()
-admin = Admin(productManager, userManager)
+usersManager = UserManager()
+admin = Admin(productManager, usersManager)
 
 # Запуск програми
 admin.run()
