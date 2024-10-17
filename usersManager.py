@@ -2,7 +2,7 @@ import productsManager
 from productsManager import Product, ProductManager
 
 class User:
-    def init(self, userName, userId, bankAccountBalance):
+    def __init__(self, userName, userId, bankAccountBalance):
         """
         Ініціалізуємо користувача з іменем, унікальним ID та балансом банківського рахунку.
         """
@@ -91,9 +91,10 @@ class User:
 
 
 class UserManager:
-    def init(self):
+    def __init__(self):
         """Ініціалізуємо порожній словник для зберігання користувачів."""
         self.userList = {}  # Ініціалізуємо словник для зберігання користувачів
+
     def addUser(self, user):
         """Додаємо нового користувача до системи."""
         if user.userId in self.userList:
