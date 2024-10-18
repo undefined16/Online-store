@@ -1,123 +1,80 @@
-import productsManager
-from productsManager import Product, ProductManager
-
 class User:
     def __init__(self, userName, userId, bankAccountBalance):
-        """
-        Ініціалізуємо користувача з іменем, унікальним ID та балансом банківського рахунку.
-        """
-        try:
-            self.userName = str(userName)  # Зберігаємо ім'я користувача
-            self.userId = int(userId)  # Зберігаємо унікальний ID користувача
-            self.cart = []  # Ініціалізуємо порожній кошик для покупок
-            self.orderHistory = []  # Ініціалізуємо порожню історію замовлень
-            self.bankAccountBalance = float(bankAccountBalance)  # Ініціалізуємо баланс банківського рахунку користувача
-        except ValueError as e:
-            print(f"Помилка під час ініціалізації користувача: {e}")
-
-    def add(self, product, quantity):
-        """Додаємо товар до кошика користувача."""
-        if quantity <= 0:
-            print("Кількість повинна бути більшою за нуль.")
-            return
-        
-        self.cart.append((product, quantity))  # Додаємо товар до кошика
-        print(f"{quantity} одиниць {product.productName} додано до кошика")
-
-    def removeFromCart(self, product):
-        """Видаляємо товар з кошика користувача."""
-        for item in self.cart:
-            if item[0].productId == product.productId:
-                self.cart.remove(item)  # Видаляємо товар з кошика
-                print(f"{product.productName} видалено з кошика")
-                return
-        
-        print(f"{product.productName} не знайдено в кошику")
-
-    def placeOrder(self, paymentMethod):
-        """Оформлюємо замовлення."""
-        total = sum(item[0].productPrice * item[1] for item in self.cart)  # Розраховуємо загальну вартість
-
-        if total > self.bankAccountBalance:
-            print("Недостатньо коштів для оформлення замовлення.")
-            return
-
-        if paymentMethod not in ["credit card", "paypal"]:
-            print("Неправильний метод оплати.")
-            return
-
-        print(f"Оплата {total}$ через {paymentMethod}")
-        self.bankAccountBalance -= total  # Віднімаємо суму з банківського рахунку
-
-        for product, quantity in self.cart:
-            if product.productQuantity >= quantity:
-                product.productQuantity -= quantity  # Зменшуємо кількість товару на складі
-                self.orderHistory.append((product, quantity))  # Додаємо замовлення в історію
-                print(f"Замовлення на {quantity} одиниць {product.productName} оформлено.")
-            else:
-                print(f"Недостатньо товару {product.productName}. Доступно: {product.productQuantity}, запитано: {quantity}")
-
-        # Очищаємо кошик після оформлення замовлення
-        self.cart.clear()
-
-    def viewCart(self):
-        """Переглядаємо поточні товари у кошику користувача."""
-        if not self.cart:
-            print("Кошик порожній.")
-            return
-
-        print("Ваш кошик:")
-        for product, quantity in self.cart:
-            print(f"{quantity} одиниць {product.productName} за {product.productPrice}$ кожен")
-
-    def viewOrderHistory(self):
-        """Переглядаємо історію замовлень користувача."""
-        if not self.orderHistory:
-            print("Історія замовлень порожня.")
-            return
-
-        print("Історія замовлень:")
-        for product, quantity in self.orderHistory:
-            print(f"{quantity} одиниць {product.productName}")
+        # Ініціалізація атрибутів користувача
+        self.userName = userName
+        self.userId = userId
+        self.bankAccountBalance = bankAccountBalance
+        self.cart = {}  # Кошик для продуктів
 
     def addFunds(self, amount):
-        """Додаємо кошти на банківський рахунок користувача."""
-        if amount <= 0:
-            print("Сума поповнення повинна бути більшою за нуль.")
+        # Додавання коштів на рахунок
+        self.bankAccountBalance += amount
+
+    def viewDetails(self):
+        # Перегляд деталей користувача
+        print(f"ID: {self.userId}, Ім'я: {self.userName}, Баланс: {self.bankAccountBalance}")
+
+    def addToCart(self, product, quantity):
+        # Додавання продукту до кошика
+        if quantity > product.quantity:
+            print(f"Недостатньо продуктів на складі. Доступно: {product.quantity}")
             return
         
-        self.bankAccountBalance += amount  # Додаємо кошти до балансу
-        print(f"Баланс поповнено на {amount}$. Поточний баланс: {self.bankAccountBalance}$")
+        if product.productId not in self.cart:
+            self.cart[product.productId] = {'product': product, 'quantity': 0}
+        
+        self.cart[product.productId]['quantity'] += quantity
+        product.quantity -= quantity  # Зменшення кількості продукту при додаванні до кошика
+
+    def removeFromCart(self, productId):
+        # Видалення продукту з кошика
+        if productId in self.cart:
+            item = self.cart[productId]
+            item['product'].quantity += item['quantity']  # Повернення кількості на склад
+            del self.cart[productId]
+
+    def checkout(self):
+        # Оформлення замовлення
+        totalCost = sum(item['product'].price * item['quantity'] for item in self.cart.values())
+        if totalCost > self.bankAccountBalance:
+            print("Недостатньо коштів на рахунку.")
+        else:
+            self.bankAccountBalance -= totalCost
+            self.cart.clear()  # Очищення кошика після оформлення
+            print("Замовлення оформлено успішно.")
 
 
 class UserManager:
     def __init__(self):
-        """Ініціалізуємо порожній словник для зберігання користувачів."""
-        self.userList = {}  # Ініціалізуємо словник для зберігання користувачів
+        # Ініціалізація словника користувачів
+        self.users = {}
 
     def addUser(self, user):
-        """Додаємо нового користувача до системи."""
-        if user.userId in self.userList:
-            print(f"Користувач з ID {user.userId} вже існує.")
-            return
-        
-        self.userList[user.userId] = user  # Додаємо користувача до списку
-        print(f"Користувач {user.userName} успішно доданий!")
+        # Додавання користувача до словника
+        self.users[user.userId] = user
+
+    def updateUser(self, userId, userName=None, bankAccountBalance=None):
+        # Оновлення користувача
+        if userId in self.users:
+            user = self.users[userId]
+            if userName is not None:
+                user.userName = userName
+            if bankAccountBalance is not None:
+                user.bankAccountBalance = bankAccountBalance
+        else:
+            print(f"Користувача з ID {userId} не знайдено.")
 
     def removeUser(self, userId):
-        """Видаляємо користувача із системи."""
-        if userId in self.userList:
-            del self.userList[userId]  # Видаляємо користувача зі списку
-            print(f"Користувач {userId} успішно видалений!")
+        # Видалення користувача з словника
+        if userId in self.users:
+            del self.users[userId]
         else:
             print(f"Користувача з ID {userId} не знайдено.")
 
     def viewUsers(self):
-        """Переглядаємо всіх користувачів у системі."""
-        if not self.userList:
-            print("Користувачів не знайдено.")
-            return
-
-        print("Список користувачів:")
-        for user in self.userList.values():
-            print(f"ID: {user.userId}, Ім'я: {user.userName}, Баланс: {user.bankAccountBalance}$")
+        # Перегляд всіх користувачів
+        if not self.users:
+            print("Немає зареєстрованих користувачів.")
+        else:
+            for userId, user in self.users.items():
+                print(f"ID: {userId}, Ім'я: {user.userName}, Баланс: {user.bankAccountBalance}")

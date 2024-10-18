@@ -1,17 +1,15 @@
-import productsManager
-import usersManager
-from productsManager import Product, ProductManager
-from usersManager import User, UserManager
+from productsManager import ProductManager, Product
+from usersManager import UserManager, User
 
 class Admin:
-    def __init__(self, productManager, userManager):
-        # Ініціалізація менеджера продуктів та користувачів
-        self.productManager = productManager
-        self.userManager = userManager
+    def __init__(self):
+        # Ініціалізація менеджерів продуктів і користувачів
+        self.productManager = ProductManager()
+        self.userManager = UserManager()
 
     def displayMenu(self):
-        # Відображення меню
-        print("\n--- Управління Онлайн Магазином ---")
+        # Відображення меню для користувача
+        print("\n=== Меню Керування Магазином ===")
         print("1. Додати продукт")
         print("2. Оновити продукт")
         print("3. Видалити продукт")
@@ -20,272 +18,206 @@ class Admin:
         print("6. Оновити користувача")
         print("7. Видалити користувача")
         print("8. Переглянути всіх користувачів")
-        print("9. Додати кошти користувачу")
-        print("10. Переглянути історію замовлень користувача")
-        print("11. Переглянути деталі користувача")
-        print("12. Додати продукт до кошика користувача")
-        print("13. Видалити продукт з кошика користувача")
-        print("14. Оформити замовлення для користувача")
-        print("15. Вийти")
-
-    def getUserInput(self, prompt, castType=str):
-        # Отримання вводу користувача та переведення до потрібного типу, обробка помилок
-        while True:
-            try:
-                userInput = input(prompt)
-                return castType(userInput) if userInput else None
-            except ValueError:
-                print(f"Невірне значення. Очікувалося {castType.__name__}.")
-
-    def addProduct(self):
-        # Додавання нового продукту
-        try:
-            name = input("Введіть назву продукту: ")
-            price = self.getUserInput("Введіть ціну продукту: ", float)
-            quantity = self.getUserInput("Введіть кількість продукту: ", int)
-            productId = self.getUserInput("Введіть ID продукту: ", int)
-
-            # Перевірка правильності введених даних
-            if all([name, price is not None, quantity is not None, productId is not None]):
-                product = Product(name, price, quantity, productId)
-                self.productManager.addProduct(product)
-                print("Продукт успішно додано.")
-            else:
-                print("Не вдалося додати продукт. Переконайтесь, що всі дані введені правильно.")
-        except Exception as e:
-            print(f"Виникла помилка при додаванні продукту: {e}")
-
-    def updateProduct(self):
-        # Оновлення існуючого продукту
-        try:
-            productId = self.getUserInput("Введіть ID продукту для оновлення: ", int)
-            if productId is not None:
-                name = input("Введіть нову назву продукту (або натисніть Enter, щоб пропустити): ")
-                price = self.getUserInput("Введіть нову ціну продукту (або натисніть Enter, щоб пропустити): ", float)
-                quantity = self.getUserInput("Введіть нову кількість продукту (або натисніть Enter, щоб пропустити): ", int)
-
-                # Передача даних для оновлення продукту
-                self.productManager.updateProduct(productId, name, price, quantity)
-                print("Продукт успішно оновлено.")
-            else:
-                print("Невірний ID продукту.")
-        except Exception as e:
-            print(f"Виникла помилка при оновленні продукту: {e}")
-
-    def deleteProduct(self):
-        # Видалення продукту
-        try:
-            productId = self.getUserInput("Введіть ID продукту для видалення: ", int)
-            if productId is not None:
-                self.productManager.deleteProduct(productId)
-                print("Продукт успішно видалено.")
-            else:
-                print("Невірний ID продукту.")
-        except Exception as e:
-            print(f"Виникла помилка при видаленні продукту: {e}")
-
-    def viewProducts(self):
-        # Перегляд всіх продуктів
-        try:
-            self.productManager.viewProducts()
-        except Exception as e:
-            print(f"Виникла помилка при перегляді продуктів: {e}")
-
-    def addUser(self):
-        # Додавання нового користувача
-        try:
-            userName = input("Введіть ім'я користувача: ")
-            userId = self.getUserInput("Введіть ID користувача: ", int)
-            bankAccountBalance = self.getUserInput("Введіть баланс користувача: ", float)
-
-            # Перевірка правильності введених даних
-            if all([userName, userId is not None, bankAccountBalance is not None]):
-                user = User(userName, userId, bankAccountBalance)
-                self.userManager.addUser(user)
-                print("Користувача успішно додано.")
-            else:
-                print("Не вдалося додати користувача. Переконайтесь, що всі дані введені правильно.")
-        except Exception as e:
-            print(f"Виникла помилка при додаванні користувача: {e}")
-
-    def updateUser(self):
-        # Оновлення існуючого користувача
-        try:
-            userId = self.getUserInput("Введіть ID користувача для оновлення: ", int)
-            if userId is not None:
-                userName = input("Введіть нове ім'я користувача (або натисніть Enter, щоб пропустити): ")
-                bankAccountBalance = self.getUserInput("Введіть новий баланс користувача (або натисніть Enter, щоб пропустити): ", float)
-
-                # Передача даних для оновлення користувача
-                self.userManager.updateUser(userId, userName, bankAccountBalance)
-                print("Користувача успішно оновлено.")
-            else:
-                print("Невірний ID користувача.")
-        except Exception as e:
-            print(f"Виникла помилка при оновленні користувача: {e}")
-
-    def deleteUser(self):
-        # Видалення користувача
-        try:
-            userId = self.getUserInput("Введіть ID користувача для видалення: ", int)
-            if userId is not None:
-                self.userManager.removeUser(userId)
-                print("Користувача успішно видалено.")
-            else:
-                print("Невірний ID користувача.")
-        except Exception as e:
-            print(f"Виникла помилка при видаленні користувача: {e}")
-
-    def viewUsers(self):
-        # Перегляд всіх користувачів
-        try:
-            self.userManager.viewUsers()
-        except Exception as e:
-            print(f"Виникла помилка при перегляді користувачів: {e}")
-
-    def addFundsToUser(self):
-        # Додавання коштів до користувача
-        try:
-            userId = self.getUserInput("Введіть ID користувача, якому потрібно додати кошти: ", int)
-            amount = self.getUserInput("Введіть суму для поповнення: ", float)
-
-            # Перевірка наявності користувача
-            if userId in self.userManager.userList:
-                user = self.userManager.userList[userId]
-                user.addFunds(amount)
-                print("Кошти успішно додано.")
-            else:
-                print(f"Користувача з ID {userId} не знайдено.")
-        except Exception as e:
-            print(f"Виникла помилка при додаванні коштів: {e}")
-
-    def viewUserOrderHistory(self):
-        # Перегляд історії замовлень конкретного користувача
-        try:
-            userId = self.getUserInput("Введіть ID користувача для перегляду історії замовлень: ", int)
-
-            # Перевірка наявності користувача
-            if userId in self.userManager.userList:
-                user = self.userManager.userList[userId]
-                user.viewOrderHistory()
-            else:
-                print(f"Користувача з ID {userId} не знайдено.")
-        except Exception as e:
-            print(f"Виникла помилка при перегляді історії замовлень: {e}")
-
-    def viewUserDetails(self):
-        # Перегляд детальної інформації про користувача
-        try:
-            userId = self.getUserInput("Введіть ID користувача для перегляду деталей: ", int)
-
-            # Перевірка наявності користувача
-            if userId in self.userManager.userList:
-                user = self.userManager.userList[userId]
-                print(f"ID: {user.userId}, Name: {user.userName}, Balance: {user.bankAccountBalance}$")
-                print("Cart:")
-                user.viewCart()
-                print("Order History:")
-                user.viewOrderHistory()
-            else:
-                print(f"Користувача з ID {userId} не знайдено.")
-        except Exception as e:
-            print(f"Виникла помилка при перегляді деталей користувача: {e}")
-
-    def addProductToUserCart(self):
-        # Додавання продукту до кошика конкретного користувача
-        try:
-            userId = self.getUserInput("Введіть ID користувача для додавання продукту до кошика: ", int)
-            productId = self.getUserInput("Введіть ID продукту для додавання: ", int)
-            quantity = self.getUserInput("Введіть кількість: ", int)
-
-            if userId in self.userManager.userList:
-                user = self.userManager.userList[userId]
-                product = self.productManager.getProductById(productId)  # Fetch product by ID
-                if product:
-                    user.add(product, quantity)
-                else:
-                    print(f"Продукт з ID {productId} не знайдено.")
-            else:
-                print(f"Користувача з ID {userId} не знайдено.")
-        except Exception as e:
-            print(f"Виникла помилка при додаванні продукту до кошика: {e}")
-
-    def removeProductFromUserCart(self):
-        # Видалення продукту з кошика конкретного користувача
-        try:
-            userId = self.getUserInput("Введіть ID користувача для видалення продукту з кошика: ", int)
-            productId = self.getUserInput("Введіть ID продукту для видалення: ", int)
-
-            if userId in self.userManager.userList:
-                user = self.userManager.userList[userId]
-                product = self.productManager.getProductById(productId)  # Fetch product by ID
-                if product:
-                    user.removeFromCart(product)
-                else:
-                    print(f"Продукт з ID {productId} не знайдено.")
-            else:
-                print(f"Користувача з ID {userId} не знайдено.")
-        except Exception as e:
-            print(f"Виникла помилка при видаленні продукту з кошика: {e}")
-
-    def placeOrderForUser(self):
-        # Оформлення замовлення для конкретного користувача
-        try:
-            userId = self.getUserInput("Введіть ID користувача для оформлення замовлення: ", int)
-            paymentMethod = input("Введіть метод оплати (кредитна картка або PayPal): ")
-
-            if userId in self.userManager.userList:
-                user = self.userManager.userList[userId]
-                user.placeOrder(paymentMethod)
-            else:
-                print(f"Користувача з ID {userId} не знайдено.")
-        except Exception as e:
-            print(f"Виникла помилка при оформленні замовлення: {e}")
+        print("9. Додати продукт до кошика")
+        print("10. Видалити продукт з кошика")
+        print("11. Оформити замовлення")
+        print("12. Додати кошти користувачу")
+        print("0. Вийти")
 
     def run(self):
-        # Головний цикл для роботи адміністратора
+        # Запуск менеджера магазину з введенням користувача та обробкою виключень
         while True:
-            self.displayMenu()
-            choice = self.getUserInput("Виберіть опцію: ", int)
+            self.displayMenu()  # Відображення меню
+            choice = input("Введіть свій вибір: ")
 
-            if choice == 1:
-                self.addProduct()
-            elif choice == 2:
-                self.updateProduct()
-            elif choice == 3:
-                self.deleteProduct()
-            elif choice == 4:
-                self.viewProducts()
-            elif choice == 5:
-                self.addUser()
-            elif choice == 6:
-                self.updateUser()
-            elif choice == 7:
-                self.deleteUser()
-            elif choice == 8:
-                self.viewUsers()
-            elif choice == 9:
-                self.addFundsToUser()
-            elif choice == 10:
-                self.viewUserOrderHistory()
-            elif choice == 11:
-                self.viewUserDetails()
-            elif choice == 12:
-                self.addProductToUserCart()
-            elif choice == 13:
-                self.removeProductFromUserCart()
-            elif choice == 14:
-                self.placeOrderForUser()
-            elif choice == 15:
-                print("Вихід з програми.")
-                break
-            else:
-                print("Невірний вибір. Спробуйте ще раз.")
+            try:
+                if choice == '1':
+                    # Додавання продукту
+                    name = input("Введіть назву продукту: ")
+                    price = self.getValidFloat("Введіть ціну продукту: ")
+                    quantity = self.getValidInt("Введіть кількість продукту: ")
+                    productId = input("Введіть ID продукту: ")
+                    self.addProduct(name, price, quantity, productId)
 
-# Ініціалізація класів для управління продуктами та користувачами
-productManager = ProductManager()
-usersManager = UserManager()
-admin = Admin(productManager, usersManager)
+                elif choice == '2':
+                    # Оновлення продукту
+                    productId = input("Введіть ID продукту для оновлення: ")
+                    name = input("Введіть нову назву (або залиште порожнім): ")
+                    price = self.getOptionalFloat("Введіть нову ціну (або залиште порожнім): ")
+                    quantity = self.getOptionalInt("Введіть нову кількість (або залиште порожнім): ")
+                    self.updateProduct(productId, name or None, price, quantity)
 
-# Запуск програми
-admin.run()
+                elif choice == '3':
+                    # Видалення продукту
+                    productId = input("Введіть ID продукту для видалення: ")
+                    self.deleteProduct(productId)
+
+                elif choice == '4':
+                    # Перегляд усіх продуктів
+                    self.viewProducts()
+
+                elif choice == '5':
+                    # Додавання користувача
+                    userName = input("Введіть ім'я користувача: ")
+                    userId = input("Введіть ID користувача: ")
+                    bankAccountBalance = self.getValidFloat("Введіть баланс банківського рахунку: ")
+                    self.addUser(userName, userId, bankAccountBalance)
+
+                elif choice == '6':
+                    # Оновлення користувача
+                    userId = input("Введіть ID користувача для оновлення: ")
+                    userName = input("Введіть нове ім'я (або залиште порожнім): ")
+                    bankAccountBalance = self.getOptionalFloat("Введіть новий баланс (або залиште порожнім): ")
+                    self.updateUser(userId, userName or None, bankAccountBalance)
+
+                elif choice == '7':
+                    # Видалення користувача
+                    userId = input("Введіть ID користувача для видалення: ")
+                    self.removeUser(userId)
+
+                elif choice == '8':
+                    # Перегляд усіх користувачів
+                    self.viewUsers()
+
+                elif choice == '9':
+                    # Додавання продукту до кошика
+                    userId = input("Введіть ID користувача: ")
+                    productId = input("Введіть ID продукту: ")
+                    quantity = self.getValidInt("Введіть кількість для додавання: ")
+                    self.addProductToCart(userId, productId, quantity)
+
+                elif choice == '10':
+                    # Видалення продукту з кошика
+                    userId = input("Введіть ID користувача: ")
+                    productId = input("Введіть ID продукту: ")
+                    self.removeProductFromCart(userId, productId)
+
+                elif choice == '11':
+                    # Оформлення замовлення
+                    userId = input("Введіть ID користувача: ")
+                    self.checkoutUser(userId)
+
+                elif choice == '12':
+                    # Додавання коштів користувачу
+                    userId = input("Введіть ID користувача: ")
+                    amount = self.getValidFloat("Введіть суму для додавання: ")
+                    self.addFundsToUser(userId, amount)
+
+                elif choice == '0':
+                    # Вихід з програми
+                    print("Вихід...")
+                    break
+
+                else:
+                    print("Невірний вибір. Спробуйте ще раз.")
+
+            except Exception as e:
+                print(f"Сталася помилка: {e}")
+
+    def getValidFloat(self, prompt):
+        # Отримання дійсного значення float
+        while True:
+            try:
+                return float(input(prompt))
+            except ValueError:
+                print("Невірний ввід. Введіть дійсне число.")
+
+    def getValidInt(self, prompt):
+        # Отримання дійсного значення int
+        while True:
+            try:
+                return int(input(prompt))
+            except ValueError:
+                print("Невірний ввід. Введіть дійсне ціле число.")
+
+    def getOptionalFloat(self, prompt):
+        # Отримання дійсного значення float або None, якщо порожнє
+        value = input(prompt)
+        if value == "":
+            return None
+        try:
+            return float(value)
+        except ValueError:
+            print("Невірний ввід. Повертається None.")
+            return None
+
+    def getOptionalInt(self, prompt):
+        # Отримання дійсного значення int або None, якщо порожнє
+        value = input(prompt)
+        if value == "":
+            return None
+        try:
+            return int(value)
+        except ValueError:
+            print("Невірний ввід. Повертається None.")
+            return None
+
+    # Методи ProductManager
+    def addProduct(self, name, price, quantity, productId):
+        # Додавання нового продукту
+        product = Product(name, price, quantity, productId)
+        self.productManager.addProduct(product)
+
+    def updateProduct(self, productId, name=None, price=None, quantity=None):
+        # Оновлення деталей продукту
+        self.productManager.updateProduct(productId, name, price, quantity)
+
+    def deleteProduct(self, productId):
+        # Видалення продукту
+        self.productManager.deleteProduct(productId)
+
+    def viewProducts(self):
+        # Перегляд усіх продуктів
+        self.productManager.viewProducts()
+
+    def getProductById(self, productId):
+        # Отримання продукту за ID
+        return self.productManager.getProductById(productId)
+
+    # Методи UserManager
+    def addUser(self, userName, userId, bankAccountBalance):
+        # Додавання нового користувача
+        user = User(userName, userId, bankAccountBalance)
+        self.userManager.addUser(user)
+
+    def updateUser(self, userId, userName=None, bankAccountBalance=None):
+        # Оновлення деталей користувача
+        self.userManager.updateUser(userId, userName, bankAccountBalance)
+
+    def removeUser(self, userId):
+        # Видалення користувача
+        self.userManager.removeUser(userId)
+
+    def viewUsers(self):
+        # Перегляд усіх користувачів
+        self.userManager.viewUsers()
+
+    def getUserById(self, userId):
+        # Отримання користувача за ID
+        return self.userManager.users.get(userId, None)
+
+    # Методи для роботи з кошиком і транзакціями
+    def addProductToCart(self, userId, productId, quantity):
+        # Додавання продукту до кошика користувача
+        user = self.getUserById(userId)
+        product = self.getProductById(productId)
+        if user and product:
+            user.addToCart(product, quantity)
+
+    def removeProductFromCart(self, userId, productId):
+        # Видалення продукту з кошика користувача
+        user = self.getUserById(userId)
+        if user:
+            user.removeFromCart(productId)
+
+    def checkoutUser(self, userId):
+        # Оформлення замовлення користувача
+        user = self.getUserById(userId)
+        if user:
+            user.checkout()
+
+    def addFundsToUser(self, userId, amount):
+        # Додавання коштів на рахунок користувача
+        user = self.getUserById(userId)
+        if user:
+            user.addFunds(amount)
