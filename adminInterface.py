@@ -1,7 +1,7 @@
 import productsManager
-import users_Manager
+import usersManager
 from productsManager import Product, ProductManager
-from users_Manager import User, UserManager
+from usersManager import User, UserManager
 
 class Admin:
     def __init__(self, productManager, userManager):
